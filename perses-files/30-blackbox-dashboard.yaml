@@ -1,0 +1,178 @@
+kind: Dashboard
+metadata:
+    name: black_box
+    createdAt: 2024-09-13T09:36:42.308994746Z
+    updatedAt: 2024-09-13T11:29:19.476900858Z
+    version: 5
+    project: sreday2024
+spec:
+    display:
+        name: blackbox
+    variables:
+        - kind: ListVariable
+          spec:
+            defaultValue: https://dekeijzer.xyz
+            allowAllValue: false
+            allowMultiple: false
+            sort: alphabetical-asc
+            plugin:
+                kind: PrometheusLabelValuesVariable
+                spec:
+                    labelName: instance
+                    matchers:
+                        - '{job="blackbox"}'
+            name: target
+    panels:
+        certificateexpiry:
+            kind: Panel
+            spec:
+                display:
+                    name: certificate expiry
+                plugin:
+                    kind: StatChart
+                    spec:
+                        calculation: last-number
+                        format:
+                            unit: seconds
+                        thresholds:
+                            defaultColor: '#348357'
+                queries:
+                    - kind: TimeSeriesQuery
+                      spec:
+                        plugin:
+                            kind: PrometheusTimeSeriesQuery
+                            spec:
+                                query: probe_ssl_earliest_cert_expiry{instance="$target"} - time()
+                                seriesNameFormat: ttl for certificate
+        ipversion:
+            kind: Panel
+            spec:
+                display:
+                    name: ip version
+                plugin:
+                    kind: StatChart
+                    spec:
+                        calculation: last-number
+                        format:
+                            shortValues: true
+                            unit: decimal
+                queries:
+                    - kind: TimeSeriesQuery
+                      spec:
+                        plugin:
+                            kind: PrometheusTimeSeriesQuery
+                            spec:
+                                query: probe_ip_protocol{job="blackbox",instance=~"$target"}
+                                seriesNameFormat: ip version
+        latency:
+            kind: Panel
+            spec:
+                display:
+                    name: latency
+                plugin:
+                    kind: GaugeChart
+                    spec:
+                        calculation: last-number
+                        format:
+                            unit: seconds
+                        max: 0.5
+                        thresholds:
+                            steps:
+                                - value: 0.1
+                                - value: 0.15
+                queries:
+                    - kind: TimeSeriesQuery
+                      spec:
+                        plugin:
+                            kind: PrometheusTimeSeriesQuery
+                            spec:
+                                query: sum by (instance)(probe_duration_seconds{instance=~"$target"})
+                                seriesNameFormat: latency
+        ping:
+            kind: Panel
+            spec:
+                display:
+                    name: ping
+                plugin:
+                    kind: TimeSeriesChart
+                    spec:
+                        yAxis:
+                            format:
+                                decimalPlaces: 0
+                                unit: seconds
+                            label: ""
+                            show: true
+                queries:
+                    - kind: TimeSeriesQuery
+                      spec:
+                        plugin:
+                            kind: PrometheusTimeSeriesQuery
+                            spec:
+                                query: sum by (instance)(probe_duration_seconds{instance=~"$target"})
+                                seriesNameFormat: '{{instance}}'
+        uptime:
+            kind: Panel
+            spec:
+                display:
+                    name: uptime
+                plugin:
+                    kind: GaugeChart
+                    spec:
+                        calculation: last-number
+                        format:
+                            unit: percent-decimal
+                        thresholds:
+                            defaultColor: '#EE6C6C'
+                            mode: percent
+                            steps:
+                                - value: 95
+                                - color: '#59CC8D'
+                                  value: 99
+                queries:
+                    - kind: TimeSeriesQuery
+                      spec:
+                        plugin:
+                            kind: PrometheusTimeSeriesQuery
+                            spec:
+                                query: avg_over_time(up{job="blackbox",instance="$target"}[24h])
+                                seriesNameFormat: uptime [24h]
+    layouts:
+        - kind: Grid
+          spec:
+            display:
+                title: Panel Group
+                collapse:
+                    open: true
+            items:
+                - x: 0
+                  "y": 0
+                  width: 10
+                  height: 9
+                  content:
+                    $ref: '#/spec/panels/ping'
+                - x: 6
+                  "y": 9
+                  width: 4
+                  height: 6
+                  content:
+                    $ref: '#/spec/panels/ipversion'
+                - x: 16
+                  "y": 0
+                  width: 8
+                  height: 17
+                  content:
+                    $ref: '#/spec/panels/uptime'
+                - x: 0
+                  "y": 9
+                  width: 6
+                  height: 5
+                  content:
+                    $ref: '#/spec/panels/certificateexpiry'
+                - x: 10
+                  "y": 0
+                  width: 6
+                  height: 9
+                  content:
+                    $ref: '#/spec/panels/latency'
+    duration: 1h
+

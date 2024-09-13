@@ -1,0 +1,10 @@
+kind: Project
+metadata:
+    name: sreday2024
+    createdAt: 2024-09-07T18:16:20.863161072Z
+    updatedAt: 2024-09-07T18:16:20.863161072Z
+    version: 0
+spec:
+    display:
+        name: SREday2024
+

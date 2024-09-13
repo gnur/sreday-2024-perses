@@ -1,0 +1,76 @@
+kind: Dashboard
+metadata:
+    name: test
+    project: sreday2024
+spec:
+    display:
+        name: test
+    panels:
+        EnergyUsage:
+            kind: Panel
+            spec:
+                display:
+                    name: Energy usage
+                plugin:
+                    kind: TimeSeriesChart
+                    spec:
+                        yAxis:
+                            format:
+                                decimalPlaces: 2
+                                shortValues: true
+                                unit: decimal
+                            label: kw
+                            min: 0
+                            show: true
+                queries:
+                    - kind: TimeSeriesQuery
+                      spec:
+                        plugin:
+                            kind: PrometheusTimeSeriesQuery
+                            spec:
+                                query: homeassistant_sensor_power_kw
+                                seriesNameFormat: '{{entity}}'
+        currentPower:
+            kind: Panel
+            spec:
+                display:
+                    name: current power
+                plugin:
+                    kind: GaugeChart
+                    spec:
+                        calculation: mean
+                        format:
+                            decimalPlaces: 2
+                            unit: decimal
+                        thresholds:
+                            steps:
+                                - value: 0.8
+                                - value: 0.9
+                queries:
+                    - kind: TimeSeriesQuery
+                      spec:
+                        plugin:
+                            kind: PrometheusTimeSeriesQuery
+                            spec:
+                                query: rate(homeassistant_sensor_energy_kwh[1h])*1000
+    layouts:
+        - kind: Grid
+          spec:
+            display:
+                title: Panel Group
+                collapse:
+                    open: true
+            items:
+                - x: 0
+                  "y": 0
+                  width: 15
+                  height: 12
+                  content:
+                    $ref: '#/spec/panels/EnergyUsage'
+                - x: 0
+                  "y": 12
+                  width: 12
+                  height: 6
+                  content:
+                    $ref: '#/spec/panels/currentPower'
+    duration: 1h
