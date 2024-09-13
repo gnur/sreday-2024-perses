@@ -2,16 +2,16 @@ kind: Dashboard
 metadata:
     name: black_box
     createdAt: 2024-09-13T09:36:42.308994746Z
-    updatedAt: 2024-09-13T11:29:19.476900858Z
-    version: 5
+    updatedAt: 2024-09-13T11:42:10.265265216Z
+    version: 7
     project: sreday2024
 spec:
     display:
-        name: blackbox
+        name: black box
     variables:
         - kind: ListVariable
           spec:
-            defaultValue: https://dekeijzer.xyz
+            defaultValue: https://buurthuis.org
             allowAllValue: false
             allowMultiple: false
             sort: alphabetical-asc
@@ -165,13 +165,13 @@ spec:
                 - x: 0
                   "y": 9
                   width: 6
-                  height: 5
+                  height: 6
                   content:
                     $ref: '#/spec/panels/certificateexpiry'
                 - x: 10
                   "y": 0
                   width: 6
-                  height: 9
+                  height: 12
                   content:
                     $ref: '#/spec/panels/latency'
     duration: 1h
