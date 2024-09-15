@@ -22,19 +22,19 @@ func main() {
 
 		dashboard.AddVariable("stack",
 			listVar.List(
-				labelValuesVar.PrometheusLabelValues("paas",
+				labelValuesVar.PrometheusLabelValues("instance",
 					labelValuesVar.Matchers(`{job="blackbox"}`),
 				),
 				listVar.DisplayName("stack?"),
 			),
 		),
 
-		dashboard.AddPanelGroup("Resource usage",
+		dashboard.AddPanelGroup("Certificate expiry",
 			panelgroup.PanelsPerLine(3),
-			panelgroup.AddPanel("Container memory",
+			panelgroup.AddPanel("date of expiry",
 				timeSeriesPanel.Chart(),
 				panel.AddQuery(
-					query.PromQL("prob_ssl_earliest_cert_expiry{instance=\"$stack\"}"),
+					query.PromQL("probe_ssl_earliest_cert_expiry{instance=\"$stack\"}"),
 				),
 			),
 		),
